@@ -29,6 +29,7 @@ if(${wxWidgets_FOUND})
         plugin_interface/forms/wizard.fbp
     )
     add_library(plugin_interface STATIC ${wxWEAVER_PLUGIN_INTERFACE_SOURCE_FILES})
+    add_library(sdk::plugin_interface ALIAS plugin_interface)
     if(MSVC)
         # Workaround to unwanted build-type directory added by MSVC
         set_target_properties(plugin_interface PROPERTIES
