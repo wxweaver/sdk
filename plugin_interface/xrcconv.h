@@ -58,10 +58,18 @@ class Element;
 */
 class ObjectToXrcFilter {
 public:
+    /** Constructor specifying the class name, instance name
+      @param obj       The object itself
+      @param className The object class name (e.g. wxButton)
+      @param objName   The name for the instance (e.g. m_button1)
+      @param base      base class name?
+      @param isObject  Specifies that the object is not a wxWindow derived class.
+                       (e.g. wxImageList)
+    */
     ObjectToXrcFilter(IObject* obj,
-                      const wxString& classname,
-                      const wxString& objname = wxEmptyString,
-                      const wxString& base = wxEmptyString);
+                      const wxString& className,
+                      const wxString& objName = wxEmptyString,
+                      const wxString& base = wxEmptyString, bool isObject = true);
     ~ObjectToXrcFilter();
 
     void AddProperty(const wxString& objPropName,
@@ -112,12 +120,24 @@ private:
 */
 class XrcToXfbFilter {
 public:
-    XrcToXfbFilter(ticpp::Element* obj,
-                   const wxString& classname);
+    /** Constructor specifying the class name and type
 
+        @param obj       The object itself
+        @param className The object class name (e.g. wxButton)
+        @param isObject  Specifies that the object is a wxWindow derived class.
+    */
     XrcToXfbFilter(ticpp::Element* obj,
-                   const wxString& classname,
-                   const wxString& objname);
+                   const wxString& className, bool isObject = true);
+
+    /** Constructor specifying the class name, instance name and type
+
+        @param obj       The object itself
+        @param className The object class name (e.g. wxButton)
+        @param objName   The name for the instance (e.g. m_button1)
+    */
+    XrcToXfbFilter(ticpp::Element* obj,
+                   const wxString& className,
+                   const wxString& objName);
     ~XrcToXfbFilter();
 
     void AddProperty(const wxString& xrcPropName,

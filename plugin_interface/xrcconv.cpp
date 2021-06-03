@@ -131,20 +131,24 @@ static wxString ReplaceSynonymous(const wxString& bitlist)
 }
 
 ObjectToXrcFilter::ObjectToXrcFilter(IObject* obj,
-                                     const wxString& classname,
-                                     const wxString& objname,
-                                     const wxString& base)
-    : m_xrcObj(new ticpp::Element("object"))
+                                     const wxString& className,
+                                     const wxString& objName,
+                                     const wxString& base, bool isObject)
+    : m_xrcObj(nullptr)
     , m_obj(obj)
 {
+    if (isObject) {
+        m_xrcObj = new ticpp::Element("object");
+        m_xrcObj->SetAttribute("class", className.mb_str(wxConvUTF8));
 
-    m_xrcObj->SetAttribute("class", classname.mb_str(wxConvUTF8));
+        if (objName != "")
+            m_xrcObj->SetAttribute("name", objName.mb_str(wxConvUTF8));
 
-    if (objname != "")
-        m_xrcObj->SetAttribute("name", objname.mb_str(wxConvUTF8));
-
-    if (base != "")
-        m_xrcObj->SetAttribute("base", base.mb_str(wxConvUTF8));
+        if (base != "")
+            m_xrcObj->SetAttribute("base", base.mb_str(wxConvUTF8));
+    } else {
+        m_xrcObj = new ticpp::Element(className.mb_str(wxConvUTF8));
+    }
 }
 
 ObjectToXrcFilter::~ObjectToXrcFilter()
@@ -434,8 +438,8 @@ void ObjectToXrcFilter::AddWindowProperties()
 }
 
 XrcToXfbFilter::XrcToXfbFilter(ticpp::Element* obj,
-                               const wxString& /*classname*/,
-                               const wxString& objname)
+                               const wxString& /*className*/,
+                               const wxString& objName)
     : m_xfbObj(new ticpp::Element("object"))
     , m_xrcObj(obj)
 {
@@ -447,25 +451,31 @@ XrcToXfbFilter::XrcToXfbFilter(ticpp::Element* obj,
     } catch (ticpp::Exception& ex) {
         wxLogDebug(wxString(ex.m_details.c_str(), wxConvUTF8));
     }
-    if (!objname.empty())
-        AddProperty("name", objname, XRC_TYPE_TEXT);
+    if (!objName.empty())
+        AddProperty("name", objName, XRC_TYPE_TEXT);
 }
 
 XrcToXfbFilter::XrcToXfbFilter(ticpp::Element* obj,
-                               const wxString& classname)
-    : m_xfbObj(new ticpp::Element("object"))
+                               const wxString& className, bool isObject)
+    : m_xfbObj(nullptr)
     , m_xrcObj(obj)
 {
-    m_xfbObj->SetAttribute("class", classname.mb_str(wxConvUTF8));
+    m_xfbObj->SetAttribute("class", className.mb_str(wxConvUTF8));
 
-    try {
-        std::string name;
-        obj->GetAttribute("name", &name);
-        wxString objname(name.c_str(), wxConvUTF8);
-        AddPropertyValue("name", objname);
+    if (isObject) {
+        m_xfbObj = new ticpp::Element("object");
 
-    } catch (ticpp::Exception& ex) {
-        wxLogDebug(wxString(ex.m_details.c_str(), wxConvUTF8));
+        try {
+            std::string name;
+            obj->GetAttribute("name", &name);
+            wxString objname(name.c_str(), wxConvUTF8);
+            AddPropertyValue("name", objname);
+
+        } catch (ticpp::Exception& ex) {
+            wxLogDebug(wxString(ex.m_details.c_str(), wxConvUTF8));
+        }
+    } else {
+        m_xfbObj = new ticpp::Element(className.mb_str(wxConvUTF8));
     }
 }
 
