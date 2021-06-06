@@ -456,27 +456,30 @@ XrcToXfbFilter::XrcToXfbFilter(ticpp::Element* obj,
 }
 
 XrcToXfbFilter::XrcToXfbFilter(ticpp::Element* obj,
-                               const wxString& className, bool isObject)
+                               const wxString& className, bool /*isObject*/)
     : m_xfbObj(nullptr)
     , m_xrcObj(obj)
 {
+#if 0
+    if (isObject) {
+#endif
+    m_xfbObj = new ticpp::Element("object");
     m_xfbObj->SetAttribute("class", className.mb_str(wxConvUTF8));
 
-    if (isObject) {
-        m_xfbObj = new ticpp::Element("object");
+    try {
+        std::string name;
+        obj->GetAttribute("name", &name);
+        wxString objname(name.c_str(), wxConvUTF8);
+        AddPropertyValue("name", objname);
 
-        try {
-            std::string name;
-            obj->GetAttribute("name", &name);
-            wxString objname(name.c_str(), wxConvUTF8);
-            AddPropertyValue("name", objname);
-
-        } catch (ticpp::Exception& ex) {
-            wxLogDebug(wxString(ex.m_details.c_str(), wxConvUTF8));
-        }
+    } catch (ticpp::Exception& ex) {
+        wxLogDebug(wxString(ex.m_details.c_str(), wxConvUTF8));
+    }
+#if 0
     } else {
         m_xfbObj = new ticpp::Element(className.mb_str(wxConvUTF8));
     }
+#endif
 }
 
 XrcToXfbFilter::~XrcToXfbFilter()
