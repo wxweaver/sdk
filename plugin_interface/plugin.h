@@ -31,29 +31,6 @@
     the module itself.
 */
 class ComponentLibrary : public IComponentLibrary {
-private:
-    typedef struct
-    {
-        wxString name;
-        IComponent* component;
-    } AComponent;
-
-    typedef struct
-    {
-        wxString name;
-        int value;
-    } AMacro;
-
-    typedef struct
-    {
-        wxString name, syn;
-    } ASynonymous;
-
-    std::vector<AComponent> m_components;
-    std::vector<AMacro> m_macros;
-    typedef std::map<wxString, wxString> SynMap;
-    SynMap m_synMap;
-
 public:
     ~ComponentLibrary() override
     {
@@ -159,28 +136,49 @@ public:
 #if 0
     size_t GetSynonymousCount() override { return m_synonymous.size(); }
 #endif
+
+private:
+    typedef struct
+    {
+        wxString name;
+        IComponent* component;
+    } AComponent;
+
+    typedef struct
+    {
+        wxString name;
+        int value;
+    } AMacro;
+
+    typedef struct
+    {
+        wxString name, syn;
+    } ASynonymous;
+
+    std::vector<AComponent> m_components;
+    std::vector<AMacro> m_macros;
+    typedef std::map<wxString, wxString> SynMap;
+    SynMap m_synMap;
 };
 
 /** Base class for components
  */
 class ComponentBase : public IComponent {
-private:
-    int m_type;
-    IManager* m_manager;
-
 public:
     ComponentBase()
-        : m_type(0)
+        : m_type(ComponentType::Abstract)
         , m_manager(nullptr)
     {
     }
 
-    void __SetComponentType(int type)
+    void RegisterComponentType(ComponentType type)
     {
-        m_type = (type >= 0 && type <= 2 ? type : COMPONENT_TYPE_ABSTRACT);
+        m_type = (type >= ComponentType::Abstract && type <= ComponentType::Sizer
+                      ? type
+                      : ComponentType::Abstract);
     }
 
-    void __SetManager(IManager* manager) { m_manager = manager; }
+    void RegisterManager(IManager* manager) { m_manager = manager; }
 
     IManager* GetManager() { return m_manager; }
 
@@ -200,5 +198,9 @@ public:
 
     ticpp::Element* ImportFromXrc(ticpp::Element* /*xrcObj*/) override { return nullptr; }
 
-    int GetComponentType() override { return m_type; }
+    ComponentType GetComponentType() override { return m_type; }
+
+private:
+    ComponentType m_type;
+    IManager* m_manager;
 };

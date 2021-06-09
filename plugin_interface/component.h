@@ -27,9 +27,13 @@
 #include <vector>
 #include <utility>
 
-#define COMPONENT_TYPE_ABSTRACT 0
-#define COMPONENT_TYPE_WINDOW 1
-#define COMPONENT_TYPE_SIZER 2
+/** Component type.
+*/
+enum class ComponentType {
+    Abstract,
+    Window,
+    Sizer
+};
 
 namespace ticpp {
 class Element;
@@ -37,22 +41,27 @@ class Element;
 
 class IComponent;
 
-// Sections for source code generation
+#if 0
+// TODO: Unused, determine if to remove.
+/** Sections of the generated source code.
+*/
 enum {
     CG_DECLARATION,
     CG_CONSTRUCTION,
     CG_POST_CONSTRUCTION,
     CG_SETTINGS
 };
-
 // Programming languages for source code generation
 enum {
     CG_CPP
 };
+#endif
 
-// Plugins interface
-// The point is to provide an interface for accessing the object's properties
-// from the plugin itself, in a safe way.
+/** Plugins interface.
+
+    Provides an interface for accessing the object's properties
+    from the plugin itself in a safe way.
+*/
 class IObject {
 public:
     virtual bool IsNull(const wxString& pname) = 0;
@@ -70,13 +79,15 @@ public:
     virtual wxString GetChildFromParentProperty(const wxString& parentName, const wxString& childName) = 0;
     virtual wxString GetClassName() = 0;
     virtual size_t GetChildCount() = 0;
-    virtual wxString GetObjectTypeName() = 0;
+    virtual wxString GetTypeName() = 0;
     virtual IObject* GetChildPtr(size_t idx) = 0;
     virtual ~IObject() { }
 };
 
-// Interface which intends to contain all the components for a plugin
-// This is an abstract class and it'll be the object that the DLL will export.
+/** Interface which intends to contain all the components for a plugin
+
+    This is an abstract class and it'll be the object that the DLL will export.
+*/
 class IComponentLibrary {
 public:
     // Used by the plugin for registering components and macros
@@ -105,11 +116,14 @@ public:
     }
 };
 
-/**
-    Component Interface
+/** Component Interface
 */
 class IComponent {
 public:
+    /** Virtual destructor
+    */
+    virtual ~IComponent() { }
+
     /** Create an instance of the wxObject and return a pointer
     */
     virtual wxObject* Create(IObject* obj, wxObject* parent) = 0;
@@ -119,16 +133,19 @@ public:
     virtual void Cleanup(wxObject* obj) = 0;
 
     /** Allows components to do something after they have been created.
-        For example, Abstract components like NotebookPage and SizerItem can
-        add the actual widget to the Notebook or sizer.
+
+        For example, abstract components like `notebookpage` and `sizeritem` can
+        add the actual widget to the wxNotebook or wxSizer.
+        Fired after the creation of children,
+        which will be accessible from this event handler.
 
         @param wxobject The object which was just created.
-        @param wxparent The wxWidgets parent -
-                        the wxObject that the created object was added to.
+        @param wxparent The parent to which the created object was added.
     */
     virtual void OnCreated(wxObject* wxobject, wxWindow* wxparent) = 0;
 
     /** Allows components to respond when selected in object tree.
+
         For example, when a wxNotebook's page is selected,
         it can switch to that page
     */
@@ -142,16 +159,19 @@ public:
     */
     virtual ticpp::Element* ImportFromXrc(ticpp::Element* xrcObj) = 0;
 
-    virtual int GetComponentType() = 0;
-    virtual ~IComponent() { }
+    /** Returns the component type.
+    */
+    virtual ComponentType GetComponentType() = 0;
 };
 
-// Used to identify wxObject* that must be manually deleted
+/** Used to identify the wxObject that must be manually deleted.
+*/
 class wxNoObject : public wxObject {
 };
 
 /** Interface to the "Manager" class in the application.
-    Essentially a collection of utility functions that take a wxObject*
+
+    Essentially a collection of utility functions that take a wxObject pointer
     and do something useful.
 */
 class IManager {
@@ -160,37 +180,45 @@ public:
     */
     virtual size_t GetChildCount(wxObject* wxobject) = 0;
 
-    /** Get a child of the object.
+    /** Returns the child of the object.
+
+        @param wxobject   The pointer to the wxWidgets parent.
         @param childIndex Index of the child to get.
     */
     virtual wxObject* GetChild(wxObject* wxobject, size_t childIndex) = 0;
 
-    /** Get the parent of the object.
+    /** Returns the parent of the object.
     */
     virtual wxObject* GetParent(wxObject* wxobject) = 0;
 
-    /** Get the IObject interface to the parent of the object.
+    /** Returns the IObject interface to the parent of the object.
     */
     virtual IObject* GetIParent(wxObject* wxobject) = 0;
 
-    /** Get the corresponding object interface pointer for the object.
+    /** Returns the corresponding object interface pointer for the object.
+
         This allows easy read only access to properties.
     */
     virtual IObject* GetIObject(wxObject* wxobject) = 0;
 
-    /** Modify a property of the object.
-        @param property The name of the property to modify.
-        @param value The new value for the property.
-        @param allowUndo If true, the property change will be placed into
-               the undo stack, if false it will be modified silently.
-    */
-    virtual void ModifyProperty(wxObject* wxobject, wxString property, wxString value, bool allowUndo = true) = 0;
+    /** Edit a property of the object.
 
-    // used so the wxNoObjects are both created and destroyed in the application
+        @param property  The name of the property to modify.
+        @param value     The new value for the property.
+        @param allowUndo If @true, the property change will be placed into
+                         the undo stack, if false it will be modified silently.
+    */
+    virtual void ModifyProperty(wxObject* wxobject, wxString property,
+                                wxString value, bool allowUndo = true)
+        = 0;
+
+    /** Used so the wxNoObjects are both created and destroyed in the application.
+    */
     virtual wxNoObject* NewNoObject() = 0;
 
-    /** Select the object in the object tree
-        Returns true if selection changed, false if already selected
+    /** Select the object in the object tree.
+
+        Returns @true if selection changed, @false if already selected.
     */
     virtual bool SelectObject(wxObject* wxobject) = 0;
 
@@ -232,16 +260,16 @@ DLL_FUNC void FreeComponentLibrary(IComponentLibrary* lib);
 #define _REGISTER_COMPONENT(name, class, type) \
     {                                          \
         ComponentBase* c = new class();        \
-        c->__SetComponentType(type);           \
-        c->__SetManager(manager);              \
+        c->RegisterComponentType(type);           \
+        c->RegisterManager(manager);              \
         lib->RegisterComponent(name, c);       \
     }
 
 #define WINDOW_COMPONENT(name, class) \
-    _REGISTER_COMPONENT(name, class, COMPONENT_TYPE_WINDOW)
+    _REGISTER_COMPONENT(name, class, ComponentType::Window)
 
 #define SIZER_COMPONENT(name, class) \
-    _REGISTER_COMPONENT(name, class, COMPONENT_TYPE_SIZER)
+    _REGISTER_COMPONENT(name, class, ComponentType::Sizer)
 
 #define ABSTRACT_COMPONENT(name, class) \
-    _REGISTER_COMPONENT(name, class, COMPONENT_TYPE_ABSTRACT)
+    _REGISTER_COMPONENT(name, class, ComponentType::Abstract)

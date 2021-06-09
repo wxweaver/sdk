@@ -1,3 +1,4 @@
+/* XPM */
 /*
     wxWeaver - A GUI Designer Editor for wxWidgets.
     Copyright (C) 2005 José Antonio Hurtado (as wxFormBuilder)
@@ -17,31 +18,31 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-/* XPM */
 static const char * default_xpm[] = {
-"21 21 4 1",
+"22 22 4 1",
 " 	c None",
 ".	c #000000",
 "+	c #FF0000",
 "@	c #FF6262",
-"                     ",
-"                     ",
-"                     ",
-"        .....        ",
-"       .+@@@+.       ",
-"      .+@@@@@+.      ",
-"      .+....@+.      ",
-"      ..   .@+.      ",
-"           .@+.      ",
-"          .@+.       ",
-"         .@+.        ",
-"        .@+.         ",
-"        .@+.         ",
-"        .++.         ",
-"        ....         ",
-"        .@+.         ",
-"        .++.         ",
-"        ....         ",
-"                     ",
-"                     ",
-"                     "};
+"                      ",
+"                      ",
+"                      ",
+"        ......        ",
+"       .+@@@@+.       ",
+"      .+@@@@@@+.      ",
+"      .+@....@+.      ",
+"      ....  .@+.      ",
+"            .@+.      ",
+"           .@+.       ",
+"          .@+.        ",
+"         .@+.         ",
+"         .@+.         ",
+"         .@+.         ",
+"         .++.         ",
+"         ....         ",
+"         .@+.         ",
+"         .++.         ",
+"         ....         ",
+"                      ",
+"                      ",
+"                      "};
