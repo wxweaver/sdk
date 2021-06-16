@@ -214,11 +214,11 @@ void ObjectToXrcFilter::AddProperty(const wxString& objPropName,
             break;
         }
 
-        if (bitmapProp.StartsWith(_("Load From File"))
-            || bitmapProp.StartsWith(_("Load From Embedded File"))
-            || bitmapProp.StartsWith(_("Load From XRC"))) {
+        if (bitmapProp.StartsWith("Load From File")
+            || bitmapProp.StartsWith("Load From Embedded File")
+            || bitmapProp.StartsWith("Load From XRC")) {
             LinkText(filename.Trim().Trim(false), &propElement);
-        } else if (bitmapProp.StartsWith(_("Load From Art Provider"))) {
+        } else if (bitmapProp.StartsWith("Load From Art Provider")) {
             propElement.SetAttribute("stock_id",
                                      filename.BeforeFirst(';').Trim().Trim(false).mb_str(wxConvUTF8));
             propElement.SetAttribute("stock_client",
@@ -863,7 +863,7 @@ void XrcToXfbFilter::ImportBitmapProperty(const wxString& xrcPropName,
         if ((xrcProperty->GetAttribute("stock_id") != "")
             && (xrcProperty->GetAttribute("stock_client") != "")) {
             // read wxArtProvider-based bitmap
-            wxString res = _("Load From Art Provider");
+            wxString res = "Load From Art Provider";
             res += ";";
             res += wxString(xrcProperty->GetAttribute("stock_id").c_str(), wxConvUTF8);
             res += ";";
@@ -871,7 +871,7 @@ void XrcToXfbFilter::ImportBitmapProperty(const wxString& xrcPropName,
             property->SetText(res.Trim().mb_str(wxConvUTF8));
         } else {
             // read file-based bitmap
-            wxString res = _("Load From File");
+            wxString res = "Load From File";
             res += ";";
             res += wxString(xrcProperty->GetText().c_str(), wxConvUTF8);
             property->SetText(res.Trim().mb_str(wxConvUTF8));
