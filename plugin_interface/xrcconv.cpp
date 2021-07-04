@@ -120,7 +120,8 @@ static wxString ReplaceSynonymous(const wxString& bitlist)
         if (result != "")
             result = result + wxChar('|');
 
-        if (lib->FindSynonymous(token, translation))
+        wxString translation = lib->GetSynonymous(token);
+        if (!translation.empty())
             result += translation;
         else
             result += token;

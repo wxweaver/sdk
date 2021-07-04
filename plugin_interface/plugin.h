@@ -79,7 +79,7 @@ public:
         return nullptr;
     }
 
-    wxString GetComponentName(size_t idx) override
+    wxString GetComponentName(size_t idx) const override
     {
         if (idx < m_components.size())
             return m_components[idx].name;
@@ -87,7 +87,7 @@ public:
         return wxString();
     }
 
-    wxString GetMacroName(size_t idx) override
+    wxString GetMacroName(size_t idx) const override
     {
         if (idx < m_macros.size())
             return m_macros[idx].name;
@@ -95,7 +95,7 @@ public:
         return wxString();
     }
 
-    int GetMacroValue(size_t idx) override
+    int GetMacroValue(size_t idx) const override
     {
         if (idx < m_macros.size())
             return m_macros[idx].value;
@@ -103,7 +103,7 @@ public:
         return 0;
     }
 #if 0
-    wxString GetMacroSynonymous(size_t idx) override
+    wxString GetMacroSynonymous(size_t idx) const override
     {
         if (idx < m_synonymous.size())
             return m_synonymous[idx].syn;
@@ -111,7 +111,7 @@ public:
         return wxString();
     }
 
-    wxString GetSynonymousName(size_t idx) override
+    wxString GetSynonymousName(size_t idx) const override
     {
         if (idx < m_synonymous.size())
             return m_synonymous[idx].name;
@@ -119,41 +119,36 @@ public:
         return wxString();
     }
 #endif
-    bool FindSynonymous(const wxString& syn, wxString& trans) override
+    wxString GetSynonymous(const wxString& synonymous) const override
     {
-        bool found = false;
-        SynMap::iterator it = m_synMap.find(syn);
-        if (it != m_synMap.end()) {
-            found = true;
-            trans = it->second;
-        }
-        return found;
+        SynMap::const_iterator it = m_synMap.find(synonymous);
+        if (it != m_synMap.end())
+            return it->second;
+
+        return wxEmptyString;
     }
 
-    size_t GetMacroCount() override { return m_macros.size(); }
+    size_t GetMacroCount() const override { return m_macros.size(); }
 
-    size_t GetComponentCount() override { return m_components.size(); }
+    size_t GetComponentCount() const override { return m_components.size(); }
 #if 0
-    size_t GetSynonymousCount() override { return m_synonymous.size(); }
+    size_t GetSynonymousCount() const override { return m_synonymous.size(); }
 #endif
 
 private:
-    typedef struct
-    {
+    struct AComponent {
         wxString name;
         IComponent* component;
-    } AComponent;
+    };
 
-    typedef struct
-    {
+    struct AMacro {
         wxString name;
         int value;
-    } AMacro;
+    };
 
-    typedef struct
-    {
+    struct ASynonymous {
         wxString name, syn;
-    } ASynonymous;
+    };
 
     std::vector<AComponent> m_components;
     std::vector<AMacro> m_macros;
@@ -198,7 +193,7 @@ public:
 
     ticpp::Element* ImportFromXrc(ticpp::Element* /*xrcObj*/) override { return nullptr; }
 
-    ComponentType GetComponentType() override { return m_type; }
+    ComponentType GetComponentType() const override { return m_type; }
 
 private:
     ComponentType m_type;

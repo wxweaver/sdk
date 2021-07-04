@@ -64,24 +64,28 @@ enum {
 */
 class IObject {
 public:
-    virtual bool IsNull(const wxString& pname) = 0;
-    virtual int GetPropertyAsInteger(const wxString& pname) = 0;
-    virtual wxFontContainer GetPropertyAsFont(const wxString& pname) = 0;
-    virtual wxColour GetPropertyAsColour(const wxString& pname) = 0;
-    virtual wxString GetPropertyAsString(const wxString& pname) = 0;
-    virtual wxPoint GetPropertyAsPoint(const wxString& pname) = 0;
-    virtual wxSize GetPropertyAsSize(const wxString& pname) = 0;
-    virtual wxBitmap GetPropertyAsBitmap(const wxString& pname) = 0;
-    virtual wxArrayInt GetPropertyAsArrayInt(const wxString& pname) = 0;
-    virtual wxArrayString GetPropertyAsArrayString(const wxString& pname) = 0;
-    virtual std::vector<std::pair<int, int>> GetPropertyAsVectorIntPair(const wxString& pname) = 0;
-    virtual double GetPropertyAsFloat(const wxString& pname) = 0;
-    virtual wxString GetChildFromParentProperty(const wxString& parentName, const wxString& childName) = 0;
-    virtual wxString GetClassName() = 0;
-    virtual size_t GetChildCount() = 0;
-    virtual wxString GetTypeName() = 0;
-    virtual IObject* GetChildPtr(size_t idx) = 0;
     virtual ~IObject() { }
+
+    virtual IObject* GetChildPtr(size_t index) = 0;
+    virtual bool IsNull(const wxString& name) const = 0;
+
+    virtual wxBitmap GetPropertyAsBitmap(const wxString& name) const = 0;
+    virtual wxColour GetPropertyAsColour(const wxString& name) const = 0;
+    virtual wxFontContainer GetPropertyAsFont(const wxString& name) const = 0;
+    virtual wxPoint GetPropertyAsPoint(const wxString& name) const = 0;
+    virtual wxSize GetPropertyAsSize(const wxString& name) const = 0;
+    virtual wxString GetPropertyAsString(const wxString& name) const = 0;
+    virtual wxArrayInt GetPropertyAsArrayInt(const wxString& name) const = 0;
+    virtual wxArrayString GetPropertyAsArrayString(const wxString& name) const = 0;
+    virtual std::vector<std::pair<int, int>> GetPropertyAsVectorIntPair(const wxString& name) = 0;
+    virtual double GetPropertyAsFloat(const wxString& name) const = 0;
+    virtual int GetPropertyAsInteger(const wxString& name) const = 0;
+
+    virtual wxString GetClassName() const = 0;
+    virtual wxString GetChildFromParentProperty(const wxString& parentName,
+                                                const wxString& childName) const = 0;
+    virtual wxString GetTypeName() const = 0;
+    virtual size_t GetChildCount() const = 0;
 };
 
 /** Interface which intends to contain all the components for a plugin
@@ -92,24 +96,24 @@ class IComponentLibrary {
 public:
     // Used by the plugin for registering components and macros
     virtual void RegisterComponent(const wxString& text, IComponent* c) = 0;
-    virtual void RegisterMacro(const wxString& text, const int value) = 0;
+    virtual void RegisterMacro(const wxString& text, int value) = 0;
     virtual void RegisterMacroSynonymous(const wxString& text, const wxString& name) = 0;
 
     // Used by wxWeaver for recovering components and macros
-    virtual IComponent* GetComponent(size_t idx) = 0;
-    virtual wxString GetComponentName(size_t idx) = 0;
-    virtual wxString GetMacroName(size_t i) = 0;
-    virtual int GetMacroValue(size_t i) = 0;
+    virtual IComponent* GetComponent(size_t index) = 0;
+    virtual wxString GetComponentName(size_t index) const = 0;
+    virtual wxString GetMacroName(size_t i) const = 0;
+    virtual int GetMacroValue(size_t i) const = 0;
 #if 0
-    virtual wxString GetMacroSynonymous(size_t i) = 0;
-    virtual wxString GetSynonymousName(size_t i) = 0;
+    virtual wxString GetMacroSynonymous(size_t i) const = 0;
+    virtual wxString GetSynonymousName(size_t i) const = 0;
 #endif
-    virtual bool FindSynonymous(const wxString& syn, wxString& trans) = 0;
+    virtual wxString GetSynonymous(const wxString& synonymous) const = 0;
 
-    virtual size_t GetMacroCount() = 0;
-    virtual size_t GetComponentCount() = 0;
+    virtual size_t GetMacroCount() const = 0;
+    virtual size_t GetComponentCount() const = 0;
 #if 0
-    virtual size_t GetSynonymousCount() = 0;
+    virtual size_t GetSynonymousCount() const = 0;
 #endif
     virtual ~IComponentLibrary()
     {
@@ -161,7 +165,7 @@ public:
 
     /** Returns the component type.
     */
-    virtual ComponentType GetComponentType() = 0;
+    virtual ComponentType GetComponentType() const = 0;
 };
 
 /** Used to identify the wxObject that must be manually deleted.
@@ -178,7 +182,7 @@ class IManager {
 public:
     /** Get the count of the children of this object.
     */
-    virtual size_t GetChildCount(wxObject* wxobject) = 0;
+    virtual size_t GetChildCount(wxObject* wxobject) const = 0;
 
     /** Returns the child of the object.
 
@@ -208,8 +212,8 @@ public:
         @param allowUndo If @true, the property change will be placed into
                          the undo stack, if false it will be modified silently.
     */
-    virtual void ModifyProperty(wxObject* wxobject, wxString property,
-                                wxString value, bool allowUndo = true)
+    virtual void ModifyProperty(wxObject* wxobject, const wxString& property,
+                                const wxString& value, bool allowUndo = true)
         = 0;
 
     /** Used so the wxNoObjects are both created and destroyed in the application.
@@ -220,7 +224,7 @@ public:
 
         Returns @true if selection changed, @false if already selected.
     */
-    virtual bool SelectObject(wxObject* wxobject) = 0;
+    virtual bool SelectObject(wxObject* wxobject) const = 0;
 
     virtual ~IManager() { }
 };
@@ -260,8 +264,8 @@ DLL_FUNC void FreeComponentLibrary(IComponentLibrary* lib);
 #define _REGISTER_COMPONENT(name, class, type) \
     {                                          \
         ComponentBase* c = new class();        \
-        c->RegisterComponentType(type);           \
-        c->RegisterManager(manager);              \
+        c->RegisterComponentType(type);        \
+        c->RegisterManager(manager);           \
         lib->RegisterComponent(name, c);       \
     }
 
