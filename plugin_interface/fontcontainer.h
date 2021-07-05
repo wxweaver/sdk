@@ -82,7 +82,7 @@ public:
         return wxFont(pointSize, m_family, m_style, m_weight, m_underlined, m_faceName);
     }
 
-// Duplicate wxFont's interface for backward compatiblity
+// Duplicate wxFont's interface for backward compatibility
 #define MAKE_GET_AND_SET(NAME, TYPE, VARIABLE)  \
     TYPE Get##NAME() const { return VARIABLE; } \
     void Set##NAME(TYPE value) { VARIABLE = value; }
